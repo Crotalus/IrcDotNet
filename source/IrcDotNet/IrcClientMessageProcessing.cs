@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -332,6 +332,17 @@ namespace IrcDotNet
                     OnCapabilityAcknowledged(new CapabilityAcknowledgedEventArgs(false, nakd));
                     SendMessageCapEnd();
                     break;
+            }
+        }
+
+        [MessageProcessor("authenticate")]
+        protected internal void ProcessMessageAuthenticate(IrcMessage message)
+        {
+            Debug.Assert(message.Parameters[0] != null);
+
+            if (message.Parameters[0] == "+")
+            {
+                SendMessageAuth(localUser.NickName, localUser.UserName, localUser.Password);
             }
         }
 
@@ -1264,6 +1275,16 @@ namespace IrcDotNet
             Debug.Assert(errorMessage != null);
             OnProtocolError(new IrcProtocolErrorEventArgs(message, int.Parse(message.Command), errorParameters,
                 errorMessage));
+        }
+
+        [MessageProcessor("900-904")]
+        protected internal void ProcessMessageSasl(IrcMessage message)
+        {
+            Debug.Assert(message.Parameters[0] != null);
+            Debug.Assert(message.Parameters[1] != null);
+            var saslMessage = message.Parameters[3];
+
+            SendMessageCapEnd();
         }
     }
 }

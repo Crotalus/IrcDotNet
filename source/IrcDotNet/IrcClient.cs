@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -1626,7 +1626,6 @@ namespace IrcDotNet
 
         protected virtual void HandleClientConnected(IrcRegistrationInfo regInfo)
         {
-
             if (regInfo.Password != null)
                 // Authenticate with server using password.
                 SendMessagePassword(regInfo.Password);
@@ -1663,6 +1662,44 @@ namespace IrcDotNet
 
             OnConnected(new EventArgs());
         }
+
+        protected virtual void HandleClientConnectedNew(IrcRegistrationInfo regInfo)
+        {
+            SendMessageCap302List();
+
+            // Check if client is registering as service or normal user.
+            if (regInfo is IrcServiceRegistrationInfo)
+            {
+                // Register client as service.
+                var serviceRegInfo = (IrcServiceRegistrationInfo)regInfo;
+                SendMessageService(serviceRegInfo.NickName, serviceRegInfo.Distribution,
+                    serviceRegInfo.Description);
+
+                localUser = new IrcLocalUser(serviceRegInfo.NickName, serviceRegInfo.Distribution,
+                    serviceRegInfo.Description);
+            }
+            else
+            {
+                // Register client as normal user.
+                var userRegInfo = (IrcUserRegistrationInfo)regInfo;
+                localUser = new IrcLocalUser(userRegInfo.NickName, userRegInfo.UserName, userRegInfo.RealName, userRegInfo.UserModes);
+                localUser.Password = userRegInfo.Password;
+
+                SendMessageNick(userRegInfo.NickName);
+                SendMessageUser(userRegInfo.UserName, GetNumericUserMode(userRegInfo.UserModes), userRegInfo.RealName);
+                SendMessageAuthPlain();
+            }
+
+            localUser.Client = this;
+
+            // Add local user to list of known users.
+            lock (((ICollection)Users).SyncRoot)
+                users.Add(localUser);
+
+            OnConnected(new EventArgs());
+        }
+
+
 
         protected virtual void HandleClientDisconnected()
         {

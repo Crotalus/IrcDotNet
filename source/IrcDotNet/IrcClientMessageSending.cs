@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using IrcDotNet.Properties;
@@ -49,6 +49,22 @@ namespace IrcDotNet
         protected void SendMessageCapList()
         {
             WriteMessage(null, "CAP", "LS");
+        }
+
+        protected void SendMessageCap302List()
+        {
+            WriteMessage(null, "CAP LS 302");
+        }
+
+        protected void SendMessageAuthPlain()
+        {
+            WriteMessage(null, "AUTHENTICATE PLAIN");
+        }
+
+        protected void SendMessageAuth(string nickname, string username, string password)
+        {
+            var base64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{nickname}\0{username}\0{password}"));
+            WriteMessage(null, "AUTHENTICATE", base64);
         }
 
         /// <summary>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,6 +18,8 @@ namespace IrcDotNet
     [DebuggerDisplay("{ToString(), nq} (local)")]
     public class IrcLocalUser : IrcUser, IIrcMessageSendHandler, IIrcMessageReceiveHandler, IIrcMessageReceiver
     {
+        public string Password { get; set; }
+
         // True if local user is service; false, if local user is normal user.
 
         // Collection of current modes of user.

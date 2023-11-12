@@ -450,7 +450,7 @@ namespace IrcDotNet
                 sendTimer.Change(0, Timeout.Infinite);
                 ReceiveAsync();
 
-                HandleClientConnected(token.Item3);
+                HandleClientConnectedNew(token.Item3);
             }
             catch (SocketException exSocket)
             {
